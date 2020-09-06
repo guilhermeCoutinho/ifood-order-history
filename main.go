@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -16,21 +17,27 @@ const wrongUsageMessage = "Usage: make run STARTING_DATE='dd-mm-yyyy' END_DATE='
 const timeFormat = "02-01-2006" // dd-mm-yyyy
 
 func getRequests() []string {
-	return []string{}
+	result, err := exec.Command("pbpaste").Output()
+	if err != nil {
+		panic(err.Error())
+	}
+	return []string{string(result)}
 }
 
 func main() {
-	if len(os.Args) != 3 {
-		panic(wrongUsageMessage)
-	}
+	startingDate, _ := time.Parse(timeFormat, "01-01-0001")
+	endDate, _ := time.Parse(timeFormat, "01-01-3001")
 
-	startingDate, err := time.Parse(timeFormat, os.Args[1])
-	if err != nil {
-		panic(wrongUsageMessage)
-	}
-	endDate, err := time.Parse(timeFormat, os.Args[2])
-	if err != nil {
-		panic(wrongUsageMessage)
+	if len(os.Args) == 3 {
+		var err error
+		startingDate, err = time.Parse(timeFormat, os.Args[1])
+		if err != nil {
+			panic(wrongUsageMessage)
+		}
+		endDate, err = time.Parse(timeFormat, os.Args[2])
+		if err != nil {
+			panic(wrongUsageMessage)
+		}
 	}
 
 	filter := func(o *Order) bool {
