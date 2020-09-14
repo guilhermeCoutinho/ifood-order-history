@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 )
@@ -17,11 +16,11 @@ const wrongUsageMessage = "Usage: make run STARTING_DATE='dd-mm-yyyy' END_DATE='
 const timeFormat = "02-01-2006" // dd-mm-yyyy
 
 func getRequests() []string {
-	result, err := exec.Command("pbpaste").Output()
-	if err != nil {
-		panic(err.Error())
+	req, ok := os.LookupEnv("CURL_REQUEST")
+	if !ok {
+		panic("Envar not set")
 	}
-	return []string{string(result)}
+	return []string{string(req)}
 }
 
 func main() {
