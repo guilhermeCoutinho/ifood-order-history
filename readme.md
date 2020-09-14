@@ -7,7 +7,7 @@ This program exports ifood's order history to a tabulated format separated by ta
 
 ## Usage
 
-#### Getting the URL from ifood
+### Getting the URL from ifood
 
 Load the **orders tab** webPage  while the developers console is open in the **network tab**. Find the *orders?size={number}* request in the list and press the button highlited in the image below. 
 The button is available in the chrome developer tools 
@@ -16,7 +16,7 @@ The button is available in the chrome developer tools
 
 ---
 
-#### Running the program
+### Running the program
 The program will use the URL directly from your clipboard, like a Ctrl-V. Dates are formatted in dd-mm-yyyy
 
 #### Using docker
