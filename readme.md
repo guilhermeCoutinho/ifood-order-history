@@ -1,3 +1,5 @@
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/guilhermecoutinho/ifood-order-history)
+
 # Ifood order history exporter
 This program exports ifood's order history to a tabulated format separated by tabs. The data looks like this:
 
@@ -19,8 +21,10 @@ The button is available in the chrome developer tools
 ### Running the program
 The program will use the URL directly from your clipboard, like a Ctrl-V. Dates are formatted in dd-mm-yyyy
 
-#### Using docker
-```docker run --rm -e "CURL_REQUEST=$(eval pbpaste)" guilhermecoutinho/ifood-order-history:v1.0.1```
+#### Using docker 
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/guilhermecoutinho/ifood-order-history?color=orange&label=container)
+
+```docker run --rm -e "CURL_REQUEST=$(eval pbpaste)" guilhermecoutinho/ifood-order-history```
 
 #### Clone and run
 Dependencies: golang:
