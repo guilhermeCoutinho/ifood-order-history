@@ -107,7 +107,7 @@ func curlToReq(curl string) []byte {
 func printTabulated(orders []*Order, separator string) {
 	for _, order := range orders {
 		year, month, day := order.CreatedAt.Date()
-		name := order.Estabilishment.Name
+		name := order.Merchant.Name
 		price := fmt.Sprintf("%.2f", float64(order.Payment.Values.Bag)/float64(100))
 
 		orderSummary := ""
