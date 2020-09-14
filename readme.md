@@ -17,9 +17,13 @@ The button is available in the chrome developer tools
 ---
 
 #### Running the program
-The program will use the URL directly from your clipboard, like a Ctrl-V.
+The program will use the URL directly from your clipboard, like a Ctrl-V. Dates are formatted in dd-mm-yyyy
 
-Install golang and run the following command after cloning the repo (dates are formatted in dd-mm-yyyy):
+#### Using docker
+```docker run --rm -e "CURL_REQUEST=$(eval pbpaste)" guilhermecoutinho/ifood-order-history:v1.0.1```
+
+#### Clone and run
+Dependencies: golang:
 
 ```make run  # runs the program with no date filters```
 
