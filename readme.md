@@ -1,6 +1,7 @@
 <a href="https://hub.docker.com/repository/docker/guilhermecoutinho/ifood-order-history"><img alt="Docker Cloud Build Status" src="https://img.shields.io/docker/cloud/build/guilhermecoutinho/ifood-order-history" ></a>
 # Ifood order history exporter
-This program exports ifood's order history to a tabulated format separated by tabs. The data looks like this:
+This program exports ifood's order history to a tabulated format separated by tabs. 
+You can [customize which data you want to expot here](https://github.com/guilhermeCoutinho/ifood-order-history/blob/master/utils.go#L21). The default behaviour looks like this
 
 | Date of order  | Establishment name | Price | Orderem items separated by a semi-colon
 | ------------- | ------------- | ------------- | ------------- |
@@ -8,33 +9,30 @@ This program exports ifood's order history to a tabulated format separated by ta
 
 ## Usage
 
-### Getting the URL from ifood
+### Authenticating
+You will need to authenticate with a browser first. I didnt figure out a way to do this without a browser yet. So the idea is to copy the authentication token request from the developer options and run it. I choose to do it with curl. The image should illustrate this. 
 
-Load the **orders tab** webPage  while the developers console is open in the **network tab**. Find the *orders?size={number}* request in the list and press the button highlited in the image below. 
-The button is available in the chrome developer tools 
+After that, [paste the authentication token here](https://github.com/guilhermeCoutinho/ifood-order-history/blob/master/constants.go#L8)
 
-![Image of Export button](./resources/copy_url.png)
+![Screen Shot 2021-04-07 at 19 45 09](https://user-images.githubusercontent.com/7122366/113944937-c09bcc80-97db-11eb-9d8b-920886194b76.png)
 
 ---
 
 ### Running the program
-The program will use the URL directly from your clipboard, like a Ctrl-V. Dates are formatted in dd-mm-yyyy
-
-#### Using docker 
-<a href="https://hub.docker.com/r/guilhermecoutinho/ifood-order-history/tags">![Docker Image Version (latest semver)](https://img.shields.io/docker/v/guilhermecoutinho/ifood-order-history?color=orange&label=container)</a>
-
-```docker run --rm -e "CURL_REQUEST=$(eval pbpaste)" guilhermecoutinho/ifood-order-history```
 
 #### Clone and run
 Dependencies: golang:
 
 ```make run  # runs the program with no date filters```
 
-```make run STARTING_DATE=01-08-2020 END_DATE=01-09-2020```
+#### Using docker 
+<a href="https://hub.docker.com/r/guilhermecoutinho/ifood-order-history/tags">![Docker Image Version (latest semver)](https://img.shields.io/docker/v/guilhermecoutinho/ifood-order-history?color=orange&label=container)</a>
+
+The recent changes made to the authentication method broke the docker build. Updates will come soon to fix this.
 
 
 ### Changing the filter
-I suggest you take a look at the *.go files* to see what you can do with it. Change the filter inside main:
+I suggest you take a look at the *.go files* to see what you can do with it. [Change the filter here](https://github.com/guilhermeCoutinho/ifood-order-history/blob/master/main.go#L32):
 	
 ```
 filter := func(o *Order) bool {
