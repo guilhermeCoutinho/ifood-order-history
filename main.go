@@ -5,23 +5,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
-
-const inputSize int = 2000
-const wrongUsageMessage = "Usage: make run STARTING_DATE='dd-mm-yyyy' END_DATE='dd-mm-yyyy' "
-const timeFormat = "02-01-2006" // dd-mm-yyyy
-
-func getRequests() []string {
-	req, ok := os.LookupEnv("CURL_REQUEST")
-	if !ok {
-		panic("Envar not set")
-	}
-	return []string{string(req)}
-}
 
 func main() {
 	startingDate, _ := time.Parse(timeFormat, "01-01-0001")
@@ -39,92 +27,76 @@ func main() {
 		}
 	}
 
+	orders := getOrders()
+
 	filter := func(o *Order) bool {
 		return o.LastStatus == "CONCLUDED" &&
 			o.CreatedAt.After(startingDate) &&
 			o.CreatedAt.Before(endDate)
 	}
-	orders := getOrders(filter)
-	printTabulated(orders, "\t")
+
+	filteredOrders := filterOrders(orders, filter)
+	printTabulated(filteredOrders, "\t")
 }
 
-func getOrders(filter func(*Order) bool) []*Order {
-	allOrders := []*Order{}
-	for _, request := range getRequests() {
-		req := strings.ReplaceAll(request, "\n", "")
-		req = strings.ReplaceAll(req, "\\", "")
-		response := curlToReq(req)
+func getOrders() []*Order {
+	totalOrders := make([]*Order, 0)
+	numberOfPages := int(math.Ceil(float64(historyLen) / float64(maxItensPerPage)))
 
-		orders := make([]*Order, inputSize)
+	printProgress(0, numberOfPages)
+
+	for i := 0; i < numberOfPages; i++ {
+		itensPerPage := getRequestPaginationParam(i, numberOfPages)
+		response := requestOrderHistory(i, itensPerPage)
+
+		orders := make([]*Order, itensPerPage)
 		err := json.Unmarshal(response, &orders)
 		if err != nil {
 			panic(err.Error())
 		}
-		allOrders = append(allOrders, orders...)
+
+		printProgress(i+1, numberOfPages)
+		hasNoMorePagesOfHistory := len(orders) == 0
+		if hasNoMorePagesOfHistory {
+			break
+		}
+
+		totalOrders = append(totalOrders, orders...)
 	}
 
-	filteredOrders := make([]*Order, 0)
-	for _, order := range allOrders {
-		if filter(order) {
-			filteredOrders = append(filteredOrders, order)
-		}
-	}
-	return filteredOrders
+	fmt.Println()
+	return totalOrders
 }
 
-func curlToReq(curl string) []byte {
-	args := strings.Split(curl, "-H")
-	url := strings.Split(args[0], "'")[1]
-	url = strings.Replace(url, "size=12", fmt.Sprintf("size=%d", inputSize), 1)
+func getRequestPaginationParam(currentPageIndex, numberOfPages int) int {
+	itensPerPage := maxItensPerPage
+	if isLastPage := currentPageIndex == numberOfPages-1; isLastPage {
+		itensPerPage = historyLen - ((numberOfPages - 1) * maxItensPerPage)
+	}
+	return itensPerPage
+}
+
+func requestOrderHistory(page, size int) []byte {
+	url := fmt.Sprintf("https://marketplace.ifood.com.br/v4/customers/me/orders?page=%d&size=%d", page, size)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	for i := 1; i < len(args); i++ {
-		args[i] = strings.ReplaceAll(args[i], "'", "")
-		args[i] = strings.Trim(args[i], " ")
-		args := strings.Split(args[i], ":")
-		arg := args[0]
-		param := args[1]
-		req.Header.Set(arg, param)
-	}
+	req.Header.Set("authorization", authToken)
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		panic(err.Error())
 	}
 	defer resp.Body.Close()
 
-	response, err := ioutil.ReadAll(io.LimitReader(resp.Body, int64(1024*10*inputSize)))
+	bufferSize := int64(1024 * 10 * size)
+	response, err := ioutil.ReadAll(io.LimitReader(resp.Body, bufferSize))
 	if err != nil {
 		panic(err.Error())
 	}
+
 	return response
-}
-
-func printTabulated(orders []*Order, separator string) {
-	for _, order := range orders {
-		year, month, day := order.CreatedAt.Date()
-		name := order.Merchant.Name
-		price := fmt.Sprintf("%.2f", float64(order.Payment.Values.Bag)/float64(100))
-
-		orderSummary := ""
-		for _, item := range order.Bag.Items {
-			orderSummary += strings.ReplaceAll(item.Name, separator, " ") + ";"
-		}
-
-		output := []string{
-			fmt.Sprintf("%v-%v-%v", day, month, year),
-			name,
-			string(price),
-			orderSummary,
-		}
-		fmt.Println(strings.Join(output, separator))
-	}
-}
-
-func print(v interface{}) {
-	s, _ := json.MarshalIndent(v, "", " ")
-	fmt.Println(string(s))
 }

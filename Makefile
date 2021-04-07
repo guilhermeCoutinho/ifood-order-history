@@ -1,5 +1,5 @@
 run:
-	@go run *.go $(STARTING_DATE) $(END_DATE)
+	@CURL_REQUEST=$$(eval pbpaste) go run *.go $(STARTING_DATE) $(END_DATE) 
 
 docker-build:
 	@docker build . -t ifood-oh
