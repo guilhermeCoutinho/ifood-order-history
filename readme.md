@@ -21,9 +21,11 @@ After that, [paste the authentication token here](https://github.com/guilhermeCo
 ### Running the program
 
 #### Clone and run
-Dependencies: golang:
+Dependencies: golang
+To run it, first [paste the authentication token here](https://github.com/guilhermeCoutinho/ifood-order-history/blob/master/constants.go#L8)
+Then execute:
 
-```make run  # runs the program with no date filters```
+```make run```
 
 #### Using docker 
 <a href="https://hub.docker.com/r/guilhermecoutinho/ifood-order-history/tags">![Docker Image Version (latest semver)](https://img.shields.io/docker/v/guilhermecoutinho/ifood-order-history?color=orange&label=container)</a>
