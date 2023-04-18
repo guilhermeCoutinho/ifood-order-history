@@ -10,7 +10,7 @@ You can [customize which data you want to expot here](https://github.com/guilher
 ## Usage
 
 ### Authenticating
-You will need to authenticate with a browser first. I didnt figure out a way to do this without a browser yet. So the idea is to copy the authentication token request from the developer options and run it. I choose to do it with curl. The image should illustrate this. 
+You will need to authenticate with a browser first because of Okta. Maybe I figure a way to trigger the ifood auth popup from the terminal some day. So the idea is to copy the authentication token request from the developer options and run it. I choose to do it with curl. The image should illustrate this. 
 
 After that, [paste the authentication token here](https://github.com/guilhermeCoutinho/ifood-order-history/blob/master/constants.go#L8)
 
